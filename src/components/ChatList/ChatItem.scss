@@ -1,0 +1,64 @@
+@import "../../assets/styles/colors";
+
+a {
+  text-decoration: none;
+}
+
+.chat {
+  // display: grid;
+  // grid-template-columns: 40px 1fr max-content;
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  border-bottom: 1px solid #cecece;
+  // grid-gap: 10px;
+  padding: 20px 20px 20px 20px;
+  font-size: 1.3rem;
+  height: 40px;
+
+  &:hover {
+    background-color: #e6e6e6;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  &.active {
+    background-color: #e6e6e6;
+  }
+}
+
+.name-container {
+  display: flex;
+  // justify-content: flex-start;
+  flex-direction: column;
+  flex: 1;
+  padding-left: 10px;
+
+  .contact-name {
+    font-weight: bold;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    color: black;
+    text-overflow: ellipsis;
+  }
+
+  .latest-message {
+    // grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+    white-space: nowrap;
+    color: #737373;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+  }
+}
+
+.time-latest-message {
+  font-size: 1rem;
+  white-space: nowrap;
+  color: #737373;
+}

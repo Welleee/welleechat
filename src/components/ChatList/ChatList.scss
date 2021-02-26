@@ -1,0 +1,38 @@
+@import "../../assets/styles/colors";
+
+#chats-list {
+  grid-area: conversation-list;
+  background-color: $light-gray;
+  overflow-y: auto;
+  border-right: 1px solid #cecece;
+  box-shadow: 0 1px 3px -1px #cecece;
+  border-radius: 0 0 0 10px;
+}
+
+#profile-container {
+  background-color: $light-gray;
+  grid-area: search-container;
+  padding: 0 20px;
+  border-radius: 10px 0 0 0;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #cecece;
+  border-bottom: 1px solid #cecece;
+  box-shadow: 0 2px 3px -1px #cecece;
+  z-index: 1;
+
+  .icons {
+    display: flex;
+    flex: 1;
+    min-width: 10vw;
+    justify-content: flex-end;
+    align-items: center;
+
+    .MuiSvgIcon-root{
+      font-size: 24px !important;
+    }
+    
+  }
+
+  
+}
