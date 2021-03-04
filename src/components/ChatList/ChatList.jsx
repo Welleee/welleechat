@@ -6,11 +6,9 @@ import NewChatIcon from "@material-ui/icons/Chat";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
+import Tooltip from "@material-ui/core/Tooltip";
 import ContactsDialog from "./ContactsDialog";
 import { Auth } from "../../context/AuthContext";
-// import { useChatStore } from "../../context/ChatContext";
-// import { useChatDispatch } from "../../context/ChatContext";
-import { useUiDispatch } from "../../context/uiContex";
 import { auth } from "../../firebaseConfig";
 
 import db from "../../firebaseConfig";
@@ -21,8 +19,7 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
   const [selectedContactValue, setSelectedContactValue] = useState();
   const { user } = useContext(Auth);
   const [contacts, setContacts] = useState([]);
-  // const { userRooms } = useChatStore();
-  const uiDispatch = useUiDispatch();
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -31,6 +28,7 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
         .collection("rooms")
         .doc(user.uid)
         .collection("userRooms")
+        .orderBy("lastMessageAt", "desc")
         .onSnapshot((snapshot) => {
           setChats(snapshot.docs.map((doc) => doc.data()));
         });
@@ -99,6 +97,7 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
       });
   };
 
+  //Add a room to the collection (parameters: roomId, selected value from the contacts modal
   const addRoom = (roomId, value) => {
     //FROM USER
     db.collection("rooms")
@@ -130,11 +129,9 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
   const handleClose = async (value) => {
     setOpen(false);
     setSelectedContactValue(value);
-    // console.log(value);
 
     if (value) {
-      let roomIdFromFirebase = "";
-      let exists = false;
+      let roomsIdFromFirebase = [];
       //Create the roomId with both uId
       let roomId =
         value.uid > user.uid ? value.uid + user.uid : user.uid + value.uid;
@@ -145,32 +142,25 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
         .collection("userRooms")
         .get()
         .then((querySnapshot) => {
-          if (querySnapshot.exists) {
-            exists = true;
-            querySnapshot.forEach((doc) => {
-              roomIdFromFirebase = doc.id;
-            });
-          }
+          querySnapshot.forEach((doc) => {
+            if (doc.exists) {
+              roomsIdFromFirebase.push(doc.id);
+            }
+          });
         });
 
-      //If the room collection exists
-      if (exists) {
-        //Check if the roomId already exists
-        //If it is not then add a new room
-        if (roomIdFromFirebase !== roomId) {
-          setRoom(roomId);
+      //Check if the roomId already exists
+      //If it is not then add a new room
+      if (roomsIdFromFirebase.includes(roomId)) {
+        setRoom(roomId);
 
-          //Add room obj in the users document
-          addUserRoom(roomId, value);
+        //Show chat container with chat messages
+        showChatMessages(true);
 
-          //Add room obj in the contacts document
-          addContactRoom(roomId, value);
-
-          //Add chat room
-          addRoom(roomId, value);
-
-          showChatMessages(true);
-        }
+        //Set activeId for the active class
+        setActiveId(roomId);
+        //Set user used for DELETE ROOMS OBJECT FROM CONTACTS COLLECTION
+        setToUserUid(value.uid);
       } else {
         setRoom(roomId);
 
@@ -183,7 +173,12 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
         //Add chat room
         addRoom(roomId, value);
 
+        //Show chat container with chat messages
         showChatMessages(true);
+        //Set activeId for the active class
+        setActiveId(roomId);
+        //Set user used for DELETE ROOMS OBJECT FROM CONTACTS COLLECTION
+        setToUserUid(value.uid);
       }
     }
   };
@@ -202,12 +197,17 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
         {/* <input type="text" placeholder="Search conversation" /> */}
         <Avatar />
         <div className="icons">
-          <IconButton onClick={handleClickOpen}>
-            <NewChatIcon />
-          </IconButton>
-          <IconButton onClick={logout}>
-            <LogoutIcon />
-          </IconButton>
+          <Tooltip title="Start a new conversation">
+            <IconButton onClick={handleClickOpen}>
+              <NewChatIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Sign Out">
+            <IconButton onClick={logout}>
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <ContactsDialog
           selectedContactValue={selectedContactValue}
@@ -218,17 +218,29 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
       </div>
 
       <div id="chats-list">
-        {chats.map((room, index) => (
-          <ChatItem
-            key={index}
-            roomId={Object.keys(room.rooms)[0]}
-            name={room.name}
-            showChatMessages={showChatMessages}
-            setRoom={setRoom}
-            toUserUid={room.uid}
-            setToUserUid={setToUserUid}
-          />
-        ))}
+        {chats.length === 0 ? (
+          <h2>There is no chat conversations. Start adding one!</h2>
+        ) : (
+          chats.map((room, index) =>
+            room.lastMessage ? (
+              <ChatItem
+                key={index}
+                roomId={Object.keys(room.rooms)[0]}
+                name={room.name}
+                lastMessage={room.lastMessage}
+                lastMessageAt={room.lastMessageAt}
+                showChatMessages={showChatMessages}
+                setRoom={setRoom}
+                toUserUid={room.uid}
+                setToUserUid={setToUserUid}
+                setActiveId={setActiveId}
+                activeId={activeId}
+              />
+            ) : (
+              ""
+            )
+          )
+        )}
       </div>
     </>
   );

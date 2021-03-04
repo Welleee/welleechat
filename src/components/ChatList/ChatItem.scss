@@ -13,7 +13,7 @@ a {
   border-bottom: 1px solid #cecece;
   // grid-gap: 10px;
   padding: 20px 20px 20px 20px;
-  font-size: 1.3rem;
+  font-size: 0.9rem;
   height: 40px;
 
   &:hover {
@@ -54,11 +54,12 @@ a {
     color: #737373;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    font-size: 0.8rem;
   }
 }
 
 .time-latest-message {
-  font-size: 1rem;
+  font-size: 0.65rem;
   white-space: nowrap;
   color: #737373;
 }

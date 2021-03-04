@@ -6,7 +6,8 @@ import TrashIcon from "@material-ui/icons/Delete";
 import SendButton from "@material-ui/icons/Send";
 import ConfirmDialog from "../Helpers/ConfirmDialog";
 
-import { useUiDispatch } from "../../context/uiContex";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Tooltip from '@material-ui/core/Tooltip'
 
 import firebase from "firebase";
 import db from "../../firebaseConfig";
@@ -18,7 +19,6 @@ const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const uiDispatch = useUiDispatch();
 
   useEffect(() => {
     //Get the messages
@@ -56,6 +56,25 @@ const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
       fromUid: user.uid,
       sentAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
+
+    //Set to true the messages field and the time from the lastMessage
+    db.collection("rooms")
+      .doc(user.uid)
+      .collection("userRooms")
+      .doc(roomId)
+      .update({
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastMessage: inputMessage,
+      });
+
+    db.collection("rooms")
+      .doc(toUserUid)
+      .collection("userRooms")
+      .doc(roomId)
+      .update({
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastMessage: inputMessage,
+      });
 
     setInputMessage("");
   };
@@ -109,9 +128,11 @@ const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
       {/* Div Title */}
       <div id="title-container">
         <span>{chatName}</span>
-        <IconButton onClick={() => setOpenConfirmDialog(true)}>
-          <TrashIcon />
-        </IconButton>
+        <Tooltip title="Delete conversation">
+          <IconButton onClick={() => setOpenConfirmDialog(true)}>
+            <TrashIcon />
+          </IconButton>
+        </Tooltip>
         <ConfirmDialog
           open={openConfirmDialog}
           handleClose={handleCloseConfirmDialog}
@@ -121,18 +142,23 @@ const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
 
       {/* Div Messages */}
       <div id="messages-container">
-        <Message messages={messages} user={user} />
+        {messages.length === 0 ? (
+          <CircularProgress className="spinner" />
+        ) : (
+          <Message messages={messages} user={user} />
+        )}
       </div>
 
-      {/* Div Message form */}
+      {/* Div Form Message */}
       <div id="conversation-form-container">
         <form onSubmit={sendMessage}>
           <input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             type="text"
+            id="inputSend"
             placeholder="Type a message.."
-            ref={(input) => input && input.focus()}
+            ref={(sendInput) => sendInput && sendInput.focus()}
           />
           <IconButton onClick={sendMessage}>
             <SendButton type="submit" />
