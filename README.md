@@ -25,6 +25,6 @@ There are many things you could/have to take in consideration, like:
 Local Setup
 ------
 1. Clone the project
-2. npm run i
-3. npm run start
+2. npm i
+3. npm start
 4. Have fun!
