@@ -21,3 +21,10 @@ There are many things you could/have to take in consideration, like:
 3. Use PropTypes for teamwork.
 4. Better validations and error messages.
 5. Implement some testing.
+
+Local Setup
+------
+1. Clone the project
+2. npm run i
+3. npm run start
+4. Have fun!
