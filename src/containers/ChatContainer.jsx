@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import ChatList from "../components/ChatList/ChatList";
 import MessagesContainer from "../components/Messages/Messages";
-import LoadingComponent from "../components/Loading/Loading";
 import { Auth } from "../context/AuthContext";
 import MessageHome from "../components/Messages/MessageHome";
 import { useHistory } from "react-router-dom";
@@ -16,10 +15,6 @@ const ChatContainer = () => {
   const [showMessages, setShowMessages] = useState(false);
   const [room, setRoom] = useState("");
   const [toUserUid, setToUserUid] = useState("");
-
-  const { loading } = useUiStore();
-
-  const uiDispatch = useUiDispatch();
 
   useEffect(() => {
     if (user === null) {
@@ -38,7 +33,6 @@ const ChatContainer = () => {
       {showMessages ? (
         <MessagesContainer
           setShowMessages={setShowMessages}
-          user={user}
           roomId={room}
           toUserUid={toUserUid}
         />

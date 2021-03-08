@@ -6,8 +6,6 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
-import PersonIcon from "@material-ui/icons/Person";
-
 
 const ContactsDialog = (props) => {
   const { onClose, selectedContactValue, open, contacts } = props;
@@ -21,14 +19,10 @@ const ContactsDialog = (props) => {
   };
 
   return (
-    <Dialog
-      onClose={handleClose}
-      aria-labelledby="simple-dialog-title"
-      open={open}
-    >
-      <DialogTitle id="simple-dialog-title">Select the contact</DialogTitle>
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Select the contact</DialogTitle>
       <List>
-        {contacts &&
+        {contacts.length !== 0 ? (
           contacts.map((contact) => (
             <ListItem
               button
@@ -36,13 +30,14 @@ const ContactsDialog = (props) => {
               key={contact.uid}
             >
               <ListItemAvatar>
-                <Avatar className="">
-                  <PersonIcon />
-                </Avatar>
+                <Avatar />
               </ListItemAvatar>
               <ListItemText primary={contact.name} />
             </ListItem>
-          ))}
+          ))
+        ) : (
+          <h4 style={{ textAlign: "center" }}>No contacts</h4>
+        )}
       </List>
     </Dialog>
   );

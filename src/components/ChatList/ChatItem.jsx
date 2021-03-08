@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-
-import db from "../../firebaseConfig";
+import React from "react";
 
 import Moment from "react-moment";
 import moment from "moment";
@@ -8,6 +6,8 @@ import "moment-timezone";
 
 import "./ChatItem.scss";
 import Avatar from "@material-ui/core/Avatar";
+
+
 
 const ChatItem = ({
   roomId,
@@ -19,7 +19,7 @@ const ChatItem = ({
   toUserUid,
   setToUserUid,
   setActiveId,
-  activeId
+  activeId,
 }) => {
 
   const showSentAtDate = (sentTime) => {
@@ -37,7 +37,7 @@ const ChatItem = ({
 
   return (
     <div
-      className={`chat ${activeId === roomId ? 'active' : ''}`}
+      className={`chat ${activeId === roomId ? "active" : ""}`}
       onClick={() => {
         showChatMessages();
         setRoom(roomId);
@@ -45,6 +45,7 @@ const ChatItem = ({
         setToUserUid(toUserUid); //To use then to delete the rooms object from users and contacts collection
       }}
     >
+
       <Avatar className="profile-img" />
       <div className="name-container">
         <div className="contact-name">{name}</div>
@@ -52,9 +53,7 @@ const ChatItem = ({
       </div>
 
       <div className="time-latest-message">
-        {lastMessageAt
-          ? showSentAtDate(lastMessageAt)
-          : ""}
+        {lastMessageAt ? showSentAtDate(lastMessageAt) : ""}
       </div>
     </div>
   );

@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Message from "./Message";
 
 import IconButton from "@material-ui/core/IconButton";
 import TrashIcon from "@material-ui/icons/Delete";
 import SendButton from "@material-ui/icons/Send";
 import ConfirmDialog from "../Helpers/ConfirmDialog";
-
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Tooltip from '@material-ui/core/Tooltip'
+import { Auth } from "../../context/AuthContext";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import firebase from "firebase";
 import db from "../../firebaseConfig";
 
 import "./Messages.scss";
 
-const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
+const Messages = ({roomId, setShowMessages, toUserUid }) => {
   const [chatName, setChatName] = useState("");
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+
+  const { user } = useContext(Auth);
 
   useEffect(() => {
     //Get the messages
@@ -142,11 +143,7 @@ const Messages = ({ user, roomId, setShowMessages, toUserUid }) => {
 
       {/* Div Messages */}
       <div id="messages-container">
-        {messages.length === 0 ? (
-          <CircularProgress className="spinner" />
-        ) : (
-          <Message messages={messages} user={user} />
-        )}
+        <Message messages={messages} user={user} />
       </div>
 
       {/* Div Form Message */}

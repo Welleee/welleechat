@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import LoginComponent from "./components/Login/Login";
+import SignUpComponent from "./components/Login/SignUp";
 import ChatContainer from "./containers/ChatContainer";
 import { AuthContext } from "./context/AuthContext";
 import { ChatProvider } from "./context/ChatContext";
@@ -11,22 +12,23 @@ import "./App.scss";
 function App() {
   return (
     <div className="App">
-      <div id="chat-container">
-        <UiProvider>
-          <AuthContext>
-            <ChatProvider>
-              <Router>
-                <Switch>
-                  <LoginComponent exact path="/" />
-                  <Route exact path="/chats">
+      <UiProvider>
+        <AuthContext>
+          <ChatProvider>
+            <Router>
+              <Switch>
+                <LoginComponent exact path="/" />
+                <SignUpComponent exact path="/signup" />
+                <Route exact path="/chats">
+                  <div id="chat-container">
                     <ChatContainer />
-                  </Route>
-                </Switch>
-              </Router>
-            </ChatProvider>
-          </AuthContext>
-        </UiProvider>
-      </div>
+                  </div>
+                </Route>
+              </Switch>
+            </Router>
+          </ChatProvider>
+        </AuthContext>
+      </UiProvider>
     </div>
   );
 }

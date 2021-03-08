@@ -5,21 +5,29 @@ import "./ChatList.scss";
 import NewChatIcon from "@material-ui/icons/Chat";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import IconButton from "@material-ui/core/IconButton";
+import ContactsIcon from "@material-ui/icons/Contacts";
 import Avatar from "@material-ui/core/Avatar";
 import Tooltip from "@material-ui/core/Tooltip";
 import ContactsDialog from "./ContactsDialog";
+import AddContact from "./AddContact";
 import { Auth } from "../../context/AuthContext";
 import { auth } from "../../firebaseConfig";
+import { useHistory } from "react-router-dom";
 
 import db from "../../firebaseConfig";
 
 const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
   const [chats, setChats] = useState([]);
   const [open, setOpen] = useState(false);
+  const [openAddContact, setOpenAddContact] = useState(false);
   const [selectedContactValue, setSelectedContactValue] = useState();
   const { user } = useContext(Auth);
   const [contacts, setContacts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [activeId, setActiveId] = useState("");
+  const [checked, setChecked] = useState([]);
+
+  let history = useHistory();
 
   useEffect(() => {
     if (user) {
@@ -51,6 +59,61 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
       .then((snapshot) => {
         setContacts(snapshot.docs.map((doc) => doc.data()));
       });
+  };
+
+  //Add contact list
+  const openAddContactList = () => {
+    setOpenAddContact(true);
+
+    db.collection("users")
+      .where("uid", '!=', user.uid)
+      .get()
+      .then((snapshot) => {
+        setUsers(snapshot.docs.map((doc) => doc.data()));
+      });
+  };
+
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
+
+  const addContact = () => {
+    checked.forEach((doc) => {
+      
+      db.collection("contacts")
+        .doc(user.uid)
+        .collection("userContacts")
+        .doc(doc.uid)
+        .set({
+          name: doc.name,
+          uid: doc.uid,
+        })
+     
+        db.collection("contacts")
+        .doc(doc.uid)
+        .collection("userContacts")
+        .doc(user.uid)
+        .set({
+          name: user.displayName,
+          uid: user.uid,
+        })
+        .then(handleCloseAddContact());
+    });
+    
+  };
+
+  const handleCloseAddContact = () => {
+    setChecked([]);
+    setOpenAddContact(false);
   };
 
   const addUserRoom = (roomId, value) => {
@@ -188,15 +251,22 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
   };
 
   const logout = () => {
-    auth.signOut();
+    auth.signOut().then(() => {
+      history.push("/");
+    });
   };
 
   return (
     <>
       <div id="profile-container">
         {/* <input type="text" placeholder="Search conversation" /> */}
-        <Avatar />
+        {user && user.photoURL ? <Avatar src={user.photoURL} /> : <Avatar />}
         <div className="icons">
+          <Tooltip title="Add a new contact">
+            <IconButton onClick={openAddContactList}>
+              <ContactsIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Start a new conversation">
             <IconButton onClick={handleClickOpen}>
               <NewChatIcon />
@@ -215,11 +285,21 @@ const ChatList = ({ setShowMessages, setRoom, toUserUid, setToUserUid }) => {
           onClose={handleClose}
           contacts={contacts}
         />
+        <AddContact
+          open={openAddContact}
+          handleClose={handleCloseAddContact}
+          checked={checked}
+          handleToggle={handleToggle}
+          users={users}
+          addContact={addContact}
+        />
       </div>
 
       <div id="chats-list">
         {chats.length === 0 ? (
-          <h2>There is no chat conversations. Start adding one!</h2>
+          <h3 style={{ margin: "10px" }}>
+            There is no chat conversations. Start adding one!
+          </h3>
         ) : (
           chats.map((room, index) =>
             room.lastMessage ? (
